@@ -3,6 +3,7 @@ import {
   buildMime,
   encodeAddress,
   forwardSubject,
+  htmlFromText,
   quoteText,
   replySubject,
   signHtml,
@@ -31,6 +32,13 @@ describe('signature', () => {
     const h = signHtml('<div>Hi</div>', sig);
     expect(h).toContain('gmail_signature');
     expect(signHtml(h, sig)).toBe(h);
+  });
+  test('a text-only body still gets the signature as a hyperlink', () => {
+    const text = signText('Hi Kathryn,\n\nThanks.', sig);
+    const h = htmlFromText(text, sig);
+    expect(h).toContain('<a href="https://geoffreychallen.com">https://geoffreychallen.com</a>');
+    expect(h.split('Geoffrey Challen').length).toBe(2);
+    expect(h).toContain('gmail_signature');
   });
 });
 

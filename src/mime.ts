@@ -250,13 +250,30 @@ function signatureRegex(text: string): RegExp {
   return new RegExp(escaped, 'g');
 }
 
-/** Ensure `text` ends with exactly one copy of the plain signature, separated by a blank line. */
-export function signText(text: string, sig?: Signature): string {
+/** Remove every copy of the plain signature from `text` and trim trailing whitespace. */
+export function stripSignature(text: string, sig?: Signature): string {
   const body = text.replace(/\r/g, '').replace(/\s+$/, '');
   if (!sig?.text) return body;
   const clean = sig.text.replace(/\u00a0/g, ' ').trim();
-  const stripped = body.replace(signatureRegex(clean), '').replace(/\s+$/, '');
+  return body.replace(signatureRegex(clean), '').replace(/\s+$/, '');
+}
+
+/** Ensure `text` ends with exactly one copy of the plain signature, separated by a blank line. */
+export function signText(text: string, sig?: Signature): string {
+  const stripped = stripSignature(text, sig);
+  if (!sig?.text) return stripped;
+  const clean = sig.text.replace(/\u00a0/g, ' ').trim();
   return stripped ? `${stripped}\n\n${clean}` : clean;
+}
+
+/**
+ * HTML alternative for a plain-text body: the text (minus any typed signature)
+ * converted to HTML, with the HTML signature appended once. Every message goes
+ * out multipart/alternative so the signature is a real <a>, which URL-rewriting
+ * gateways (Proofpoint URL Defense and the like) leave readable.
+ */
+export function htmlFromText(text: string, sig?: Signature): string {
+  return signHtml(textToHtml(stripSignature(text, sig)), sig);
 }
 
 /** Append the HTML signature unless the body already carries one. */

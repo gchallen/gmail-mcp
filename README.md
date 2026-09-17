@@ -15,7 +15,7 @@ It is a superset of Google's hosted Gmail MCP server (`gmailmcp.googleapis.com`,
 - **Labels by name.** Every label parameter accepts a label ID or its exact name.
 - **A CLI.** `gmail-mcp call <tool> '<json>'` runs any tool from a shell, handy for scripts and debugging.
 
-Bodies are plain text by default (one line per paragraph; Gmail links bare URLs on display). Pass `htmlBody` for lists or other formatting; the plain-text alternative is derived automatically.
+Bodies are plain text by default (one line per paragraph). Every message goes out as `multipart/alternative` with an HTML part derived from the text, so URLs and the signature are real links even after a URL-rewriting gateway (Proofpoint URL Defense and the like) has been at them. Pass `htmlBody` for lists or other formatting; the plain-text alternative is derived automatically.
 
 ## Setup
 

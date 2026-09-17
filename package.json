@@ -1,6 +1,6 @@
 {
   "name": "gmail-mcp",
-  "version": "2026.9.0",
+  "version": "2026.9.1",
   "description": "Model Context Protocol server for Gmail: search, read, drafts with local-file attachments, send, reply, forward, labels, trash and spam, attachment download.",
   "type": "module",
   "main": "dist/index.js",

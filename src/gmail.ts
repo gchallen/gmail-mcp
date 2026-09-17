@@ -24,10 +24,10 @@ import {
   quoteHtml,
   quoteText,
   replySubject,
+  htmlFromText,
   signHtml,
   signText,
   signatureFromText,
-  textToHtml,
   toBase64Url,
   withoutSelf,
   type AttachmentSpec,
@@ -446,7 +446,8 @@ export class GmailService {
     const sig = input.signature === false ? undefined : await this.getSignature();
     const wantHtml = input.htmlBody !== undefined;
     let text = signText(input.body ?? (wantHtml ? htmlToText(input.htmlBody!) : ''), sig);
-    let html = wantHtml ? signHtml(input.htmlBody!, sig) : undefined;
+    // Always send multipart/alternative, as Gmail's own client does.
+    let html = wantHtml ? signHtml(input.htmlBody!, sig) : htmlFromText(text, sig);
 
     if (original && input.quote !== false && mode !== 'new') {
       const src = {
@@ -461,10 +462,7 @@ export class GmailService {
       const qText = mode === 'forward' ? forwardText(src) : quoteText(src);
       const qHtml = mode === 'forward' ? forwardHtml(src) : quoteHtml(src);
       text = `${text}\n\n${qText}`;
-      // A reply to an HTML message keeps its formatting by going out as HTML too.
-      if (html === undefined && original.htmlBody)
-        html = signHtml(textToHtml(input.body ?? ''), sig);
-      if (html !== undefined) html = `${html}<br><div><br></div>${qHtml}`;
+      html = `${html}<br><div><br></div>${qHtml}`;
     }
     out.text = text;
     out.html = html;
@@ -685,11 +683,11 @@ export class GmailService {
     if (bodyChanged) {
       // A new body replaces the old one wholesale; a quoted original in the
       // old draft is not carried over (say so in the tool description).
-      html = opts.htmlBody !== undefined ? signHtml(opts.htmlBody, sig) : undefined;
       text = signText(
         opts.body ?? (opts.htmlBody !== undefined ? htmlToText(opts.htmlBody) : ''),
         sig,
       );
+      html = opts.htmlBody !== undefined ? signHtml(opts.htmlBody, sig) : htmlFromText(text, sig);
     } else {
       text = existing.plaintextBody ?? '';
       html = existing.htmlBody;
