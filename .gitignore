@@ -1,0 +1,10 @@
+node_modules
+*.tgz
+.DS_Store
+.env
+*.tsbuildinfo
+
+# Never commit OAuth material
+credentials.json
+token.json
+config.json
