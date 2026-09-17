@@ -23,9 +23,11 @@ Bodies are plain text by default (one line per paragraph; Gmail links bare URLs 
 
 1. In [Google Cloud Console](https://console.cloud.google.com/) create or pick a project.
 2. **APIs & Services → Library**: enable the **Gmail API**.
-3. **APIs & Services → OAuth consent screen**: External, fill in the app name and your email, add yourself under **Test users**. (Testing mode is fine for personal use; tokens issued to test users do not expire while the app stays in testing.)
-4. **APIs & Services → Credentials → Create credentials → OAuth client ID**, type **Desktop app**. Download the JSON.
-5. Save it as `~/.config/gmail-mcp/credentials.json`.
+3. **Google Auth Platform → Get started**: fill in the app name and your email, choose **External**.
+4. **Data Access → Add or remove scopes**: add `https://www.googleapis.com/auth/gmail.modify` and `https://www.googleapis.com/auth/gmail.settings.basic`.
+5. **Audience**: add yourself under **Test users**.
+6. **Clients → Create client**, type **Desktop app**. Download the JSON and save it as `~/.config/gmail-mcp/credentials.json`.
+7. **Publish the app** (recommended). While the app is in Testing, Google expires refresh tokens after 7 days and you would have to run `auth` weekly. Under **Branding**, set the home page to `https://github.com/gchallen/gmail-mcp`, the privacy policy to `https://github.com/gchallen/gmail-mcp/blob/main/PRIVACY.md`, and add `github.com` as an authorized domain. Then **Audience → Publish app**. Verification is not needed for personal use: sign-in shows a "Google hasn't verified this app" warning you click through under **Advanced**, and unverified apps are limited to 100 users.
 
 The scopes requested are `gmail.modify` (everything except permanent deletion) and `gmail.settings.basic` (to read your signature).
 
