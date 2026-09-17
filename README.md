@@ -67,6 +67,16 @@ Equivalent `~/.claude.json` entry:
 "gmail": { "type": "stdio", "command": "node", "args": ["/Users/you/code/gmail-mcp/bin/cli.js"] }
 ```
 
+### 4. Turn off the claude.ai Gmail connector (optional)
+
+If your claude.ai account has the Gmail connector attached, Claude Code loads it in every session alongside this server. Its tools have the same names, which is confusing. `claude mcp remove` cannot touch account connectors, and the `/mcp` menu only disables them per project. To block it for every project on the machine, add this to `~/.claude/settings.json`:
+
+```json
+"deniedMcpServers": [{ "serverName": "claude.ai Gmail" }]
+```
+
+The connector stays attached to your claude.ai account and keeps working there; only Claude Code on this machine stops loading it.
+
 ## Configuration
 
 Everything lives in `~/.config/gmail-mcp/` (override the directory with `GMAIL_MCP_DIR`, which is also how you run a second account).
