@@ -6,10 +6,13 @@ const format = z
     .enum(['minimal', 'metadata', 'plain_text', 'full', 'raw'])
     .optional()
     .describe(FORMAT_DESCRIPTION);
-const email = z
+// Built fresh for every property. Reusing one zod instance for to, cc and bcc makes the
+// JSON Schema converter emit cc and bcc as {"$ref": "#/properties/to"}, and clients that
+// do not resolve the reference send those arrays as strings, which then fail validation.
+const email = () => z
     .string()
     .describe('An email address, optionally with a display name: "Name <user@example.com>" or "user@example.com".');
-const emails = z.array(email).optional();
+const emails = () => z.array(email()).optional();
 const attachment = z
     .union([
     z.string().describe('Absolute path of a local file to attach.'),
@@ -173,9 +176,9 @@ export const tools = [
             'the original is quoted below the new text unless quote is false); recipients are still yours to give, or use reply ' +
             "with asDraft for Gmail's default recipients. Attachments are local file paths. Returns the draft ID, message ID, thread ID and a Gmail link.",
         schema: {
-            to: emails,
-            cc: emails,
-            bcc: emails,
+            to: emails(),
+            cc: emails(),
+            bcc: emails(),
             subject: z
                 .string()
                 .optional()
@@ -203,9 +206,9 @@ export const tools = [
             'message ID changes on every update while the draft ID stays the same.',
         schema: {
             draftId: z.string(),
-            to: emails,
-            cc: emails,
-            bcc: emails,
+            to: emails(),
+            cc: emails(),
+            bcc: emails(),
             subject: z.string().optional(),
             body: z.string().optional().describe(BODY_HELP),
             htmlBody: z.string().optional().describe(HTML_HELP),
@@ -261,9 +264,9 @@ export const tools = [
                 .string()
                 .optional()
                 .describe('Send this existing draft; all other fields are ignored.'),
-            to: emails,
-            cc: emails,
-            bcc: emails,
+            to: emails(),
+            cc: emails(),
+            bcc: emails(),
             subject: z.string().optional().describe('Title Case.'),
             body: z.string().optional().describe(BODY_HELP),
             htmlBody: z.string().optional().describe(HTML_HELP),
@@ -297,9 +300,9 @@ export const tools = [
             htmlBody: z.string().optional().describe(HTML_HELP),
             replyAll: z.boolean().optional().describe('Default false.'),
             asDraft: z.boolean().optional().describe('Create a draft instead of sending. Default false.'),
-            to: emails.describe('Override the default To.'),
-            cc: emails.describe('Override the default Cc.'),
-            bcc: emails,
+            to: emails().describe('Override the default To.'),
+            cc: emails().describe('Override the default Cc.'),
+            bcc: emails(),
             attachments,
             quote: z.boolean().optional().describe('Default true.'),
             signature: z.boolean().optional().describe(SIGNATURE_HELP),
@@ -317,9 +320,9 @@ export const tools = [
             'with Fwd:. Sends immediately unless asDraft is true.',
         schema: {
             messageId: z.string(),
-            to: z.array(email).min(1),
-            cc: emails,
-            bcc: emails,
+            to: z.array(email()).min(1),
+            cc: emails(),
+            bcc: emails(),
             body: z
                 .string()
                 .optional()
